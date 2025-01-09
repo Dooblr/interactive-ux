@@ -1,12 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { OptionsBar } from "./components/OptionsBar/OptionsBar";
+import { Pong } from './components/Pong/Pong';
 import "./App.scss";
 
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showPong, setShowPong] = useState(false);
   const [bokehElements, setBokehElements] = useState<
     Array<{
       id: number;
@@ -17,6 +19,7 @@ function App() {
       velocity: { x: number; y: number };
     }>
   >([]);
+  const [isMenuVisible, setIsMenuVisible] = useState(true);
 
   // Create initial bokeh elements
   useEffect(() => {
@@ -113,9 +116,35 @@ function App() {
     setTimeout(() => setShowOptions(true), 500);
   };
 
+  const handlePongClick = () => {
+    setShowPong(true);
+    setBokehElements([]); // Clear bokeh
+  };
+
   const handleBackClick = () => {
     setShowOptions(false);
-    setTimeout(() => setIsCollapsed(false), 300);
+    setShowPong(false);
+    setTimeout(() => {
+      setIsCollapsed(false);
+      // Recreate bokeh elements
+      const colors = ["#ff7e5f", "#feb47b", "#7bc6cc", "#be93c5", "#7ed6df"];
+      const elements = Array.from({ length: 15 }, (_, i) => ({
+        id: i,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: Math.random() * 100 + 50,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        velocity: {
+          x: (Math.random() - 0.5) * 0.5,
+          y: (Math.random() - 0.5) * 0.5,
+        },
+      }));
+      setBokehElements(elements);
+    }, 300);
+  };
+
+  const handleToggleMenu = () => {
+    setIsMenuVisible(prev => !prev);
   };
 
   return (
@@ -164,7 +193,22 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showOptions && <OptionsBar onBackClick={handleBackClick} />}
+        {showOptions && isMenuVisible && (
+          <OptionsBar 
+            onBackClick={handleBackClick}
+            onPongClick={handlePongClick}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPong && (
+          <Pong 
+            isActive={showPong} 
+            onToggleMenu={handleToggleMenu}
+            isMenuVisible={isMenuVisible}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

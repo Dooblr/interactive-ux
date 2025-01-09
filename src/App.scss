@@ -58,7 +58,36 @@ body {
   align-items: center;
   backdrop-filter: blur(10px);
   transform-origin: left center;
-  overflow: hidden;
+  overflow: visible;
+  border: none;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 4px;
+    background: 
+      linear-gradient(90deg,
+        transparent 0%,
+        rgba(123, 198, 204, 0.4) 25%,
+        rgba(254, 180, 123, 0.4) 50%,
+        rgba(190, 147, 197, 0.4) 75%,
+        transparent 100%
+      );
+    mask: 
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    padding: 1px;
+    animation: borderPulse 4s linear infinite;
+  }
+
+  &::after {
+    animation: borderPulse 4s linear infinite reverse;
+    animation-delay: -2s;
+    opacity: 0.6;
+  }
 
   h1 {
     white-space: nowrap;
@@ -69,15 +98,52 @@ body {
     flex-grow: 1;
     margin-left: auto;
     margin-inline: 10%;
-    border: none;
-    background: none;
+    border: 2px solid rgba(123, 198, 204, 0.6);
+    background: rgba(255, 255, 255, 0.05);
     color: white;
     font-size: 1.5rem;
     cursor: pointer;
     border-radius: 1rem;
-    padding: 1rem;
+    padding: 1.2rem 2rem;
     font-family: 'Lora', serif;
     white-space: nowrap;
+    position: relative;
+    z-index: 3;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 10px rgba(123, 198, 204, 0.5);
+    box-shadow: 0 0 20px rgba(123, 198, 204, 0.2);
+
+    &:hover {
+      background: rgba(123, 198, 204, 0.2);
+      border-color: rgba(123, 198, 204, 0.8);
+      transform: translateY(-2px);
+      box-shadow: 
+        0 0 30px rgba(123, 198, 204, 0.3),
+        0 0 60px rgba(123, 198, 204, 0.1);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(123, 198, 204, 0.3),
+        transparent
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    &:hover::before {
+      opacity: 1;
+    }
   }
 }
 
@@ -101,5 +167,20 @@ body {
     color: white;
     font-size: 2rem;
     cursor: pointer;
+  }
+}
+
+@keyframes borderPulse {
+  0% {
+    background-position: 0% 0%;
+    filter: brightness(0.5);
+  }
+  50% {
+    background-position: 200% 0%;
+    filter: brightness(1.2);
+  }
+  100% {
+    background-position: 400% 0%;
+    filter: brightness(0.5);
   }
 }

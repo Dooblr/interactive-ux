@@ -19,6 +19,7 @@ const BackArrow = () => (
 
 interface OptionsBarProps {
   onBackClick: () => void;
+  onPongClick: () => void;
 }
 
 export const optionsBarVariants = {
@@ -57,8 +58,19 @@ export const optionVariants = {
   }
 };
 
-export function OptionsBar({ onBackClick }: OptionsBarProps) {
-  const options = [<BackArrow key="back" />, "Option 2", "Option 3", "Option 4", "Option 5"];
+export function OptionsBar({ onBackClick, onPongClick }: OptionsBarProps) {
+  const options = [
+    <BackArrow key="back" />,
+    "Play Pong",
+    "Option 3",
+    "Option 4",
+    "Option 5"
+  ];
+
+  const handleClick = (index: number) => {
+    if (index === 0) onBackClick();
+    if (index === 1) onPongClick();
+  };
 
   return (
     <motion.div
@@ -73,7 +85,7 @@ export function OptionsBar({ onBackClick }: OptionsBarProps) {
           key={index}
           className={`option-button ${index === 0 ? 'back-button' : ''}`}
           variants={optionVariants}
-          onClick={index === 0 ? onBackClick : undefined}
+          onClick={() => handleClick(index)}
         >
           {option}
         </motion.button>
