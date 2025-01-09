@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useStore } from "../../store/useStore";
 import "./OptionsBar.scss";
 
 const BackArrow = () => (
@@ -59,10 +60,12 @@ export const optionVariants = {
 };
 
 export function OptionsBar({ onBackClick, onPongClick }: OptionsBarProps) {
+  const setShowCube = useStore(state => state.setShowCube);
+
   const options = [
     <BackArrow key="back" />,
     "Play Pong",
-    "Option 3",
+    "View Cube",
     "Option 4",
     "Option 5"
   ];
@@ -70,6 +73,7 @@ export function OptionsBar({ onBackClick, onPongClick }: OptionsBarProps) {
   const handleClick = (index: number) => {
     if (index === 0) onBackClick();
     if (index === 1) onPongClick();
+    if (index === 2) setShowCube(true);
   };
 
   return (

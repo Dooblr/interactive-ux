@@ -2,6 +2,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { OptionsBar } from "./components/OptionsBar/OptionsBar";
 import { Pong } from './components/Pong/Pong';
+import { ThreeScene } from './components/ThreeScene/ThreeScene';
+import { useStore } from "./store/useStore";
 import "./App.scss";
 
 function App() {
@@ -20,6 +22,7 @@ function App() {
     }>
   >([]);
   const [isMenuVisible, setIsMenuVisible] = useState(true);
+  const { showCube, setShowCube } = useStore();
 
   // Create initial bokeh elements
   useEffect(() => {
@@ -124,6 +127,7 @@ function App() {
   const handleBackClick = () => {
     setShowOptions(false);
     setShowPong(false);
+    setShowCube(false);
     setTimeout(() => {
       setIsCollapsed(false);
       // Recreate bokeh elements
@@ -155,6 +159,7 @@ function App() {
           transform: perspective,
           transformStyle: "preserve-3d",
           transformOrigin: "center center",
+          display: showCube ? 'none' : 'block'
         }}
       >
         {bokehElements.map((element) => (
@@ -209,6 +214,10 @@ function App() {
             isMenuVisible={isMenuVisible}
           />
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCube && <ThreeScene />}
       </AnimatePresence>
     </div>
   );
