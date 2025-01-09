@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { OptionsBar } from "./components/OptionsBar/OptionsBar";
 import "./App.scss";
 
 function App() {
@@ -107,53 +108,15 @@ function App() {
     }
   };
 
-  const optionsBarVariants = {
-    initial: {
-      y: "100%",
-      opacity: 0
-    },
-    animate: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 30,
-        when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    },
-    exit: {
-      y: "100%",
-      opacity: 0,
-      transition: {
-        duration: 0.3
-      }
-    }
-  };
-
-  const optionVariants = {
-    initial: {
-      y: 20,
-      opacity: 0
-    },
-    animate: {
-      y: 0,
-      opacity: 1
-    }
-  };
-
   const handleBeginClick = () => {
     setIsCollapsed(true);
-    setTimeout(() => setShowOptions(true), 500); // Show options after hero collapses
+    setTimeout(() => setShowOptions(true), 500);
   };
 
   const handleBackClick = () => {
     setShowOptions(false);
-    setTimeout(() => setIsCollapsed(false), 300); // Expand hero after options hide
+    setTimeout(() => setIsCollapsed(false), 300);
   };
-
-  const options = ["Back", "Option 2", "Option 3", "Option 4", "Option 5"];
 
   return (
     <div className="app-container">
@@ -201,26 +164,7 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showOptions && (
-          <motion.div
-            className="options-bar"
-            variants={optionsBarVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            {options.map((option, index) => (
-              <motion.button
-                key={option}
-                className="option-button"
-                variants={optionVariants}
-                onClick={index === 0 ? handleBackClick : undefined}
-              >
-                {option}
-              </motion.button>
-            ))}
-          </motion.div>
-        )}
+        {showOptions && <OptionsBar onBackClick={handleBackClick} />}
       </AnimatePresence>
     </div>
   );

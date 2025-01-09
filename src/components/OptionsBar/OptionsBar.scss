@@ -1,0 +1,45 @@
+.options-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+
+  .option-button {
+    background: none;
+    border: none;
+    color: white;
+    font-family: 'Lora', serif;
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    &.back-button {
+      color: #7bc6cc;
+      
+      svg {
+        transform: scale(1.2);
+        
+        &:hover {
+          transform: scale(1.3);
+        }
+      }
+    }
+  }
+} 
