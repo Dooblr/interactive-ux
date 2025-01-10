@@ -6,6 +6,7 @@ import { ThreeScene } from './components/ThreeScene/ThreeScene';
 import { Home } from './components/Home/Home';
 import { useStore, shouldShowBackButton, heroVariants } from "./store/useStore";
 import "./App.scss";
+import { AudioPlayer } from './components/AudioPlayer/AudioPlayer';
 
 function App() {
   const {
@@ -107,6 +108,7 @@ function App() {
           />
         )}
         {currentView === 'cube' && <ThreeScene />}
+        {currentView === 'audio' && <AudioPlayer />}
       </AnimatePresence>
 
       {/* Back Button */}

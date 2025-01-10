@@ -12,13 +12,14 @@ export function OptionsBar({ onBackClick, onNavigate }: OptionsBarProps) {
     "Play Pong",
     "View Cube",
     "Modus Arena (3D Game)",
-    "Option 5"
+    "Audio Player"
   ];
 
   const handleClick = (index: number) => {
     if (index === 0) onNavigate('pong');
     if (index === 1) onNavigate('cube');
     if (index === 2) window.open('https://modusarena.web.app/', '_blank');
+    if (index === 3) onNavigate('audio');
   };
 
   return (

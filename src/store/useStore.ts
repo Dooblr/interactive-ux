@@ -93,7 +93,7 @@ type BokehElement = {
 };
 
 // Define possible application states
-export type AppView = 'start' | 'navigation' | 'pong' | 'cube' | 'home';
+export type AppView = 'start' | 'navigation' | 'pong' | 'cube' | 'home' | 'audio';
 
 interface AppState {
   // Core State
