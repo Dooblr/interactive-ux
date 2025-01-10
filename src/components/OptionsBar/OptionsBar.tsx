@@ -9,8 +9,8 @@ interface OptionsBarProps {
 
 export function OptionsBar({ onBackClick, onNavigate }: OptionsBarProps) {
   const options = [
-    "Play Pong",
-    "View Cube",
+    "Pong",
+    "Picture Cube",
     "Modus Arena (3D Game)",
     "Audio Player"
   ];

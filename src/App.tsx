@@ -20,6 +20,9 @@ function App() {
     toggleMenu
   } = useStore();
 
+  const isAudioPlaying = useStore(state => state.isAudioPlaying);
+  const setMousePosition = useStore(state => state.setMousePosition);
+
   // Initialize bokeh elements
   useEffect(() => {
     if (currentView === 'start') {
@@ -29,13 +32,31 @@ function App() {
 
   // Bokeh animation
   useEffect(() => {
-    const animationFrame = requestAnimationFrame(function animate() {
-      updateBokehElements();
-      requestAnimationFrame(animate);
-    });
+    let animationFrame: number;
 
-    return () => cancelAnimationFrame(animationFrame);
+    const animate = () => {
+      updateBokehElements();
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    // Always animate
+    animate();
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
   }, [updateBokehElements]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition(e.clientX, e.clientY);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [setMousePosition]);
 
   return (
     <div className="app-container">

@@ -1,0 +1,145 @@
+.turntable {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 2rem auto;
+
+  .platter {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    .vinyl {
+      position: absolute;
+      width: 95%;
+      height: 95%;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #111, #333);
+      animation: spin 2s linear infinite;
+      animation-play-state: paused;
+      cursor: grab;
+      transition: none;
+      user-select: none;
+
+      &:active {
+        cursor: grabbing;
+      }
+
+      .label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30%;
+        height: 30%;
+        border-radius: 50%;
+        background: linear-gradient(
+          45deg,
+          rgba(123, 198, 204, 0.8),
+          rgba(254, 180, 123, 0.8)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: white;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      }
+
+      .grooves {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: repeating-radial-gradient(
+          circle at 50% 50%,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.1) 2px,
+          rgba(255, 255, 255, 0.1) 4px
+        );
+      }
+    }
+
+    .spindle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      z-index: 2;
+    }
+  }
+
+  .tonearm {
+    position: absolute;
+    top: 12%;
+    right: -2%;
+    width: 32%;
+    height: 40%;
+    transform-origin: 100% 0;
+
+    .base {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .arm {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.2);
+      transform-origin: 95% 50%;
+      transform: rotate(-30deg);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+
+      &::before {
+        content: '';
+        position: absolute;
+        right: -5px;
+        top: 50%;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-50%);
+      }
+
+      .head {
+        position: absolute;
+        left: -2px;
+        top: 50%;
+        width: 12px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-50%) rotate(-90deg);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+} 
