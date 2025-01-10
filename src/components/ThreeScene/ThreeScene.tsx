@@ -1,5 +1,5 @@
 import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls, Html } from '@react-three/drei';
+import { OrbitControls, Html, Grid } from '@react-three/drei';
 import { TextureLoader } from 'three';
 import { motion } from 'framer-motion';
 import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
@@ -89,6 +89,43 @@ function Cube({ onCubeReady }: { onCubeReady: (textures: THREE.Texture[]) => voi
   );
 }
 
+function Scene() {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <spotLight
+        position={[10, 10, 10]}
+        angle={0.15}
+        penumbra={1}
+        intensity={1}
+        castShadow
+      />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} />
+      
+      <pointLight
+        position={[10, 0, -10]}
+        intensity={0.3}
+        color="#7bc6cc"
+      />
+
+      <Grid
+        renderOrder={-1}
+        position={[0, -2, 0]}
+        infiniteGrid={true}
+        cellSize={0.5}
+        cellThickness={0.5}
+        cellColor="#7bc6cc"
+        sectionSize={2}
+        sectionThickness={1}
+        sectionColor="#feb47b"
+        fadeDistance={30}
+        fadeStrength={1}
+        followCamera={false}
+      />
+    </>
+  );
+}
+
 export function ThreeScene() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [textures, setTextures] = useState<THREE.Texture[]>([]);
@@ -174,11 +211,12 @@ export function ThreeScene() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <Canvas camera={{ position: [3, 3, 3], fov: 50 }}>
+      <Canvas 
+        camera={{ position: [3, 3, 3], fov: 50 }}
+        shadows
+      >
         <Suspense fallback={<LoadingFallback />}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <pointLight position={[-10, -10, -10]} intensity={0.5} />
+          <Scene />
           
           <group ref={cubeRef}>
             <Cube onCubeReady={handleCubeReady} />
@@ -192,6 +230,8 @@ export function ThreeScene() {
             enablePan={false}
             autoRotate={!isExpanded}
             autoRotateSpeed={1}
+            minPolarAngle={Math.PI / 4}
+            maxPolarAngle={Math.PI / 2}
           />
         </Suspense>
       </Canvas>
