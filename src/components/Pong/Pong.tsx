@@ -21,6 +21,7 @@ export function Pong({ isActive, onToggleMenu, isMenuVisible }: PongProps) {
   const frameRef = useRef<number>();
   const lastTimeRef = useRef<number>(performance.now());
   const [score, setScore] = useState({ player: 0, computer: 0 });
+  const [scoreCooldown, setScoreCooldown] = useState(false);
   
   const [gameState, setGameState] = useState<GameState>({
     paddleY: 50,

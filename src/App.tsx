@@ -1,168 +1,51 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { OptionsBar } from "./components/OptionsBar/OptionsBar";
 import { Pong } from './components/Pong/Pong';
 import { ThreeScene } from './components/ThreeScene/ThreeScene';
-import { useStore } from "./store/useStore";
+import { Home } from './components/Home/Home';
+import { useStore, shouldShowBackButton, heroVariants } from "./store/useStore";
 import "./App.scss";
 
 function App() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const [showPong, setShowPong] = useState(false);
-  const [bokehElements, setBokehElements] = useState<
-    Array<{
-      id: number;
-      x: number;
-      y: number;
-      size: number;
-      color: string;
-      velocity: { x: number; y: number };
-    }>
-  >([]);
-  const [isMenuVisible, setIsMenuVisible] = useState(true);
-  const { showCube, setShowCube } = useStore();
+  const {
+    currentView,
+    bokehElements,
+    isMenuVisible,
+    navigateTo,
+    goBack,
+    initializeBokehElements,
+    updateBokehElements,
+    toggleMenu
+  } = useStore();
 
-  // Create initial bokeh elements
+  // Initialize bokeh elements
   useEffect(() => {
-    const colors = ["#ff7e5f", "#feb47b", "#7bc6cc", "#be93c5", "#7ed6df"];
-    const elements = Array.from({ length: 15 }, (_, i) => ({
-      id: i,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      size: Math.random() * 100 + 50,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      velocity: {
-        x: (Math.random() - 0.5) * 0.5,
-        y: (Math.random() - 0.5) * 0.5,
-      },
-    }));
-    setBokehElements(elements);
-  }, []);
+    if (currentView === 'start') {
+      initializeBokehElements();
+    }
+  }, [currentView, initializeBokehElements]);
 
-  // Handle mouse movement
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: (e.clientY / window.innerHeight) * 2 - 1,
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // Animate bokeh elements
+  // Bokeh animation
   useEffect(() => {
     const animationFrame = requestAnimationFrame(function animate() {
-      setBokehElements((prevElements) => {
-        return prevElements.map((element) => {
-          let newX = element.x + element.velocity.x;
-          let newY = element.y + element.velocity.y;
-
-          // Bounce off walls
-          if (newX < 0 || newX > window.innerWidth) element.velocity.x *= -1;
-          if (newY < 0 || newY > window.innerHeight) element.velocity.y *= -1;
-
-          // Keep within bounds
-          newX = Math.max(0, Math.min(window.innerWidth, newX));
-          newY = Math.max(0, Math.min(window.innerHeight, newY));
-
-          return {
-            ...element,
-            x: newX,
-            y: newY,
-          };
-        });
-      });
+      updateBokehElements();
       requestAnimationFrame(animate);
     });
 
     return () => cancelAnimationFrame(animationFrame);
-  }, []);
-
-  const perspective = `
-    perspective(1000px)
-    rotateX(${mousePosition.y * -10}deg)
-    rotateY(${mousePosition.x * 10}deg)
-  `;
-
-  const heroVariants = {
-    initial: { 
-      opacity: 0,
-      x: "-100%",
-      width: "30rem"
-    },
-    animate: { 
-      opacity: 1,
-      x: 0,
-      width: "30rem",
-      transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.2 }
-      }
-    },
-    collapsed: {
-      x: "-100%",
-      width: "4rem",
-      transition: {
-        width: { duration: 0.3 },
-        x: { type: "spring", stiffness: 400, damping: 40 }
-      }
-    }
-  };
-
-  const handleBeginClick = () => {
-    setIsCollapsed(true);
-    setTimeout(() => setShowOptions(true), 500);
-  };
-
-  const handlePongClick = () => {
-    setShowPong(true);
-    setBokehElements([]); // Clear bokeh
-  };
-
-  const handleBackClick = () => {
-    setShowOptions(false);
-    setShowPong(false);
-    setShowCube(false);
-    setTimeout(() => {
-      setIsCollapsed(false);
-      // Recreate bokeh elements
-      const colors = ["#ff7e5f", "#feb47b", "#7bc6cc", "#be93c5", "#7ed6df"];
-      const elements = Array.from({ length: 15 }, (_, i) => ({
-        id: i,
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        size: Math.random() * 100 + 50,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        velocity: {
-          x: (Math.random() - 0.5) * 0.5,
-          y: (Math.random() - 0.5) * 0.5,
-        },
-      }));
-      setBokehElements(elements);
-    }, 300);
-  };
-
-  const handleToggleMenu = () => {
-    setIsMenuVisible(prev => !prev);
-  };
+  }, [updateBokehElements]);
 
   return (
     <div className="app-container">
+      {/* Bokeh Background */}
       <div
         className="bokeh-container"
         style={{
-          transform: perspective,
-          transformStyle: "preserve-3d",
-          transformOrigin: "center center",
-          display: showCube ? 'none' : 'block'
+          display: currentView === 'cube' ? 'none' : 'block'
         }}
       >
-        {bokehElements.map((element) => (
+        {bokehElements?.map((element) => (
           <div
             key={element.id}
             className="bokeh"
@@ -170,55 +53,74 @@ function App() {
               width: element.size,
               height: element.size,
               background: element.color,
-              transform: `translate(${element.x}px, ${
-                element.y
-              }px) translateZ(${element.size / 2}px)`,
+              transform: `translate(${element.x}px, ${element.y}px) translateZ(${element.size / 2}px)`,
             }}
           />
         ))}
       </div>
 
+      {/* Start Screen */}
       <AnimatePresence mode="wait">
-        <motion.div
-          className="hero-container"
-          variants={heroVariants}
-          initial="initial"
-          animate={isCollapsed ? "collapsed" : "animate"}
-        >
-          <h1>Interactive UI</h1>
-          <motion.button
-            className="begin-button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleBeginClick}
+        {currentView === 'start' && (
+          <motion.div
+            className="hero-container"
+            variants={heroVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
-            Begin
-          </motion.button>
-        </motion.div>
+            <div className="corner top-left" />
+            <div className="corner top-right" />
+            <div className="corner bottom-left" />
+            <div className="corner bottom-right" />
+            <h1>Interactive UI</h1>
+            <motion.button
+              className="begin-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigateTo('home')}
+            >
+              Begin
+            </motion.button>
+          </motion.div>
+        )}
       </AnimatePresence>
 
+      {/* Navigation Bar */}
       <AnimatePresence>
-        {showOptions && isMenuVisible && (
+        {isMenuVisible && currentView !== 'start' && (
           <OptionsBar 
-            onBackClick={handleBackClick}
-            onPongClick={handlePongClick}
+            onBackClick={goBack}
+            onNavigate={navigateTo}
           />
         )}
       </AnimatePresence>
 
+      {/* Content Views */}
       <AnimatePresence>
-        {showPong && (
+        {currentView === 'home' && <Home />}
+        {currentView === 'pong' && (
           <Pong 
-            isActive={showPong} 
-            onToggleMenu={handleToggleMenu}
+            isActive={true}
+            onToggleMenu={toggleMenu}
             isMenuVisible={isMenuVisible}
           />
         )}
+        {currentView === 'cube' && <ThreeScene />}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {showCube && <ThreeScene />}
-      </AnimatePresence>
+      {/* Back Button */}
+      {shouldShowBackButton(currentView) && (
+        <motion.button
+          className="back-button"
+          onClick={goBack}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          ←
+        </motion.button>
+      )}
     </div>
   );
 }

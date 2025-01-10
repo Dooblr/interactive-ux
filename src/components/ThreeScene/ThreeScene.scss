@@ -6,4 +6,38 @@
   height: 100%;
   z-index: 1;
   background: #1a1a1a;
+
+  canvas {
+    touch-action: none;
+  }
+
+  .loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-family: 'Lora', serif;
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    &::after {
+      content: '';
+      width: 2rem;
+      height: 2rem;
+      border: 2px solid rgba(123, 198, 204, 0.5);
+      border-top-color: #7bc6cc;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 } 

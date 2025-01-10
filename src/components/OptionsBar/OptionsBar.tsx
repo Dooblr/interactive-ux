@@ -1,79 +1,24 @@
 import { motion } from "framer-motion";
-import { useStore } from "../../store/useStore";
+import { useStore, AppView, optionsBarVariants, optionVariants } from "../../store/useStore";
 import "./OptionsBar.scss";
-
-const BackArrow = () => (
-  <svg 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="3"
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-  >
-    <path d="M19 12H5" />
-    <path d="M12 19l-7-7 7-7" />
-  </svg>
-);
 
 interface OptionsBarProps {
   onBackClick: () => void;
-  onPongClick: () => void;
+  onNavigate: (view: AppView) => void;
 }
 
-export const optionsBarVariants = {
-  initial: {
-    y: "100%",
-    opacity: 0
-  },
-  animate: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
-      when: "beforeChildren",
-      staggerChildren: 0.1
-    }
-  },
-  exit: {
-    y: "100%",
-    opacity: 0,
-    transition: {
-      duration: 0.3
-    }
-  }
-};
-
-export const optionVariants = {
-  initial: {
-    y: 20,
-    opacity: 0
-  },
-  animate: {
-    y: 0,
-    opacity: 1
-  }
-};
-
-export function OptionsBar({ onBackClick, onPongClick }: OptionsBarProps) {
-  const setShowCube = useStore(state => state.setShowCube);
-
+export function OptionsBar({ onBackClick, onNavigate }: OptionsBarProps) {
   const options = [
-    <BackArrow key="back" />,
     "Play Pong",
     "View Cube",
-    "Option 4",
+    "Modus Arena (3D Game)",
     "Option 5"
   ];
 
   const handleClick = (index: number) => {
-    if (index === 0) onBackClick();
-    if (index === 1) onPongClick();
-    if (index === 2) setShowCube(true);
+    if (index === 0) onNavigate('pong');
+    if (index === 1) onNavigate('cube');
+    if (index === 2) window.open('https://modusarena.web.app/', '_blank');
   };
 
   return (
@@ -87,7 +32,7 @@ export function OptionsBar({ onBackClick, onPongClick }: OptionsBarProps) {
       {options.map((option, index) => (
         <motion.button
           key={index}
-          className={`option-button ${index === 0 ? 'back-button' : ''}`}
+          className="option-button"
           variants={optionVariants}
           onClick={() => handleClick(index)}
         >
