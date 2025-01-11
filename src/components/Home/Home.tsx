@@ -14,10 +14,9 @@ export function Home() {
         <div className="corner top-right" />
         <div className="corner bottom-left" />
         <div className="corner bottom-right" />
-        <h1>Welcome to Interactive UI</h1>
-        <p>Explore a collection of interactive experiences built with modern web technologies. 
-           Navigate through different sections using the menu below, or interact with the elements 
-           to discover hidden features.</p>
+        <h1>Interactive Web Design</h1>
+        <p>Explore a collection of interactive experiences built with modern web technologies by Dan Feinstein. 
+           Use the menu below to navigate through different sections.</p>
       </div>
     </motion.div>
   );

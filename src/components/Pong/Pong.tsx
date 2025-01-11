@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import './Pong.scss';
+import { MenuToggle } from '../shared/MenuToggle';
 
 interface PongProps {
   isActive: boolean;
@@ -178,15 +179,7 @@ export function Pong({ isActive, onToggleMenu, isMenuVisible }: PongProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <motion.button
-        className="menu-toggle"
-        onClick={onToggleMenu}
-        animate={{ opacity: isMenuVisible ? 0.5 : 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        Menu
-      </motion.button>
+      <MenuToggle onClick={onToggleMenu} isVisible={isMenuVisible} />
       
       <div className="pong-game" ref={gameRef}>
         <div className="score">

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { OptionsBar } from "./components/OptionsBar/OptionsBar";
 import { Pong } from './components/Pong/Pong';
 import { ThreeScene } from './components/ThreeScene/ThreeScene';
@@ -8,6 +8,8 @@ import { useStore, shouldShowBackButton, heroVariants } from "./store/useStore";
 import "./App.scss";
 import { AudioPlayer } from './components/AudioPlayer/AudioPlayer';
 import { UXFlow } from './components/UXFlow/UXFlow';
+import { Branding } from './components/Branding/Branding';
+import { MenuToggle } from './components/shared/MenuToggle';
 
 function App() {
   const {
@@ -23,32 +25,47 @@ function App() {
 
   const isAudioPlaying = useStore(state => state.isAudioPlaying);
   const setMousePosition = useStore(state => state.setMousePosition);
+  const animationFrameRef = useRef<number>();
 
   // Initialize bokeh elements
   useEffect(() => {
-    if (currentView === 'start') {
-      initializeBokehElements();
-    }
-  }, [currentView, initializeBokehElements]);
-
-  // Bokeh animation
-  useEffect(() => {
-    let animationFrame: number;
-
-    const animate = () => {
-      updateBokehElements();
-      animationFrame = requestAnimationFrame(animate);
-    };
-
-    // Always animate
-    animate();
-
+    initializeBokehElements();
+    
     return () => {
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [updateBokehElements]);
+  }, [initializeBokehElements]);
+
+  // Bokeh animation with stable frame timing
+  useEffect(() => {
+    let lastTime = performance.now();
+    const fps = 60;
+    const frameInterval = 1000 / fps;
+
+    const animate = (currentTime: number) => {
+      if (currentView === 'cube') return;
+
+      const deltaTime = currentTime - lastTime;
+
+      if (deltaTime >= frameInterval) {
+        lastTime = currentTime;
+        updateBokehElements();
+      }
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+    };
+  }, [updateBokehElements, currentView]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -61,11 +78,11 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Bokeh Background */}
       <div
         className="bokeh-container"
         style={{
-          display: currentView === 'cube' ? 'none' : 'block'
+          opacity: currentView === 'cube' ? 0 : 1,
+          transition: 'opacity 0.3s ease-out'
         }}
       >
         {bokehElements?.map((element) => (
@@ -75,8 +92,8 @@ function App() {
             style={{
               width: element.size,
               height: element.size,
-              background: element.color,
-              transform: `translate(${element.x}px, ${element.y}px) translateZ(${element.size / 2}px)`,
+              transform: `translate(${element.x}px, ${element.y}px)`,
+              background: element.color
             }}
           />
         ))}
@@ -131,7 +148,12 @@ function App() {
         )}
         {currentView === 'cube' && <ThreeScene />}
         {currentView === 'audio' && <AudioPlayer />}
-        {currentView === 'uxflow' && <UXFlow />}
+        {currentView === 'uxflow' && (
+          <>
+            <MenuToggle onClick={toggleMenu} />
+            <Branding />
+          </>
+        )}
       </AnimatePresence>
 
       {/* Back Button */}
@@ -143,7 +165,7 @@ function App() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          ←
+          <span>←</span>
         </motion.button>
       )}
     </div>

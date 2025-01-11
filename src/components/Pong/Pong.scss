@@ -10,25 +10,6 @@
   z-index: 1;
   background: rgba(0, 0, 0, 0.9);
 
-  .menu-toggle {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: none;
-    border: 2px solid white;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Lora', serif;
-    z-index: 3;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-
   .pong-game {
     width: 80vw;
     height: 80vh;

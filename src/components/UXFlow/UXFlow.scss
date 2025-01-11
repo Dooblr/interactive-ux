@@ -67,8 +67,6 @@
         mask-composite: exclude;
         -webkit-mask-composite: xor;
         padding: 1px;
-        pointer-events: none;
-        z-index: -1;
       }
 
       h2 {
@@ -85,8 +83,6 @@
         border-radius: 0.5rem;
         cursor: pointer;
         transition: all 0.2s ease;
-        position: relative;
-        z-index: 1;
 
         &:hover {
           background: rgba(123, 198, 204, 0.3);

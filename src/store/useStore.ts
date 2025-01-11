@@ -87,17 +87,9 @@ type BokehElement = {
   id: number;
   x: number;
   y: number;
-  z: number;
   size: number;
-  baseSize: number;
   color: string;
   velocity: { x: number; y: number };
-  pulseOffset: number;
-  pulseSpeed: number;
-  lifespan: number;
-  opacity: number;
-  angle: number;
-  speed: number;
 };
 
 // Define possible application states
@@ -128,46 +120,44 @@ interface AppState {
 }
 
 // Theme colors with variations
-const themeColors = [
-  // Reduced number of colors for simplicity
-  'rgba(123, 198, 204, 0.2)',  // Cyan
-  'rgba(254, 180, 123, 0.2)',  // Orange
-  'rgba(190, 147, 197, 0.2)',  // Purple
-];
+export const themeColors = {
+  primary: {
+    cyan: 'rgba(123, 198, 204, 0.3)',     // #7bc6cc
+    orange: 'rgba(254, 180, 123, 0.3)',    // #feb47b
+    purple: 'rgba(190, 147, 197, 0.3)',    // #be93c5
+  },
+  gradients: {
+    primary: 'linear-gradient(90deg, rgba(123, 198, 204, 0.8), rgba(254, 180, 123, 0.8))',
+    secondary: 'linear-gradient(90deg, rgba(254, 180, 123, 0.8), rgba(190, 147, 197, 0.8))',
+    full: 'linear-gradient(90deg, rgba(123, 198, 204, 0.8) 0%, rgba(254, 180, 123, 0.8) 50%, rgba(190, 147, 197, 0.8) 100%)'
+  }
+};
 
+// Helper function to create a single bokeh element
 const createBokehElement = (id: number): BokehElement => {
-  const size = Math.random() * 150 + 100;  // Larger, softer circles
-  const angle = Math.random() * Math.PI * 2;
-  const speed = 0.1 + Math.random() * 0.2;  // Much slower movement
-
+  const size = Math.random() * 100 + 50; // Size between 50-150px
+  const colors = [
+    themeColors.primary.cyan,
+    themeColors.primary.orange,
+    themeColors.primary.purple
+  ];
+  
   return {
     id,
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
-    z: Math.random() * 200 - 100,
     size,
-    baseSize: size,
-    color: themeColors[Math.floor(Math.random() * themeColors.length)],
+    color: colors[Math.floor(Math.random() * colors.length)],
     velocity: {
-      x: Math.cos(angle) * speed,
-      y: Math.sin(angle) * speed,
-    },
-    pulseOffset: Math.random() * Math.PI * 2,
-    pulseSpeed: 0.0005 + Math.random() * 0.001,  // Slower pulsing
-    lifespan: 30000 + Math.random() * 30000,  // Longer lifespan
-    opacity: 0,
-    angle,
-    speed
+      x: (Math.random() - 0.5) * 0.5,
+      y: (Math.random() - 0.5) * 0.5
+    }
   };
 };
 
+// Create initial bokeh elements
 const createInitialBokehElements = (): BokehElement[] => {
-  return Array.from({ length: 10 }, (_, i) => ({  // Fewer elements
-    ...createBokehElement(i),
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    opacity: 0.3
-  }));
+  return Array.from({ length: 15 }, (_, i) => createBokehElement(i));
 };
 
 export const useStore = create<AppState>((set, get) => ({
@@ -176,7 +166,7 @@ export const useStore = create<AppState>((set, get) => ({
   previousView: null,
   viewHistory: ['start'],
   isMenuVisible: true,
-  bokehElements: createInitialBokehElements(),
+  bokehElements: [],
   isAudioPlaying: false,
   mousePosition: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
 
@@ -234,82 +224,26 @@ export const useStore = create<AppState>((set, get) => ({
   // Bokeh related actions
   setBokehElements: (elements) => set({ bokehElements: elements }),
   clearBokehElements: () => set({ bokehElements: [] }),
-  initializeBokehElements: () => set({ bokehElements: createInitialBokehElements() }),
+  initializeBokehElements: () => {
+    set({ bokehElements: createInitialBokehElements() });
+  },
   updateBokehElements: () => set((state) => {
-    const currentTime = Date.now();
-    let bokehElements = state.bokehElements.filter(element => element.opacity > 0);
-
-    // Maintain fewer elements
-    if (bokehElements.length < 10) {
-      const newId = Math.max(...bokehElements.map(e => e.id), 0) + 1;
-      bokehElements.push(createBokehElement(newId));
-    }
-
-    // Get mouse position from state
-    const { x: mouseX, y: mouseY } = state.mousePosition;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
     return {
-      bokehElements: bokehElements.map(element => {
-        // More subtle direction changes
-        const angleChange = (Math.random() - 0.5) * 0.01;
-        const newAngle = element.angle + angleChange;
-        const speedChange = (Math.random() - 0.5) * 0.005;
-        const newSpeed = Math.max(0.1, Math.min(0.3, element.speed + speedChange));
+      bokehElements: state.bokehElements.map(element => {
+        // Simple boundary checking and position updates
+        let newX = element.x + element.velocity.x;
+        let newY = element.y + element.velocity.y;
 
-        const newVelocity = {
-          x: Math.cos(newAngle) * newSpeed,
-          y: Math.sin(newAngle) * newSpeed,
-        };
-
-        // Calculate mouse influence for each element
-        const mouseOffsetX = (mouseX - centerX) / centerX;
-        const mouseOffsetY = (mouseY - centerY) / centerY;
-        const zFactor = (element.z + 100) / 200;
-        const mouseInfluence = 0.1 * zFactor;
-
-        let newX = element.x + newVelocity.x + (mouseOffsetX * mouseInfluence);
-        let newY = element.y + newVelocity.y + (mouseOffsetY * mouseInfluence);
-        let newZ = element.z;
-
-        // Gentle screen wrapping
+        // Wrap around screen edges
         if (newX < -element.size) newX = window.innerWidth + element.size;
         if (newX > window.innerWidth + element.size) newX = -element.size;
         if (newY < -element.size) newY = window.innerHeight + element.size;
         if (newY > window.innerHeight + element.size) newY = -element.size;
 
-        // Very subtle base animation
-        const baseAnimation = Math.sin(currentTime * element.pulseSpeed + element.pulseOffset) * 0.01;
-        let size = element.baseSize * (1 + baseAnimation);
-        let glowIntensity = 0.2 + (baseAnimation * 1.5);
-
-        // Additional effects when music is playing
-        if (state.isAudioPlaying) {
-          const musicBump = Math.sin(currentTime * element.pulseSpeed * 2 + element.pulseOffset) * 0.02;
-          size *= (1 + musicBump);
-          const glowVariation = Math.sin(currentTime * element.pulseSpeed * 0.5 + element.pulseOffset) * 0.1;
-          glowIntensity += glowVariation;
-        }
-
-        // Keep glow intensity subtle
-        glowIntensity = Math.max(0.1, Math.min(0.4, glowIntensity));
-
         return {
           ...element,
           x: newX,
-          y: newY,
-          z: newZ,
-          size,
-          opacity: element.opacity,
-          angle: newAngle,
-          speed: newSpeed,
-          velocity: newVelocity,
-          lifespan: element.lifespan - 16.67,
-          color: element.color.replace(
-            /rgba\((.*?),(.*?),(.*?),.*?\)/,
-            `rgba($1,$2,$3,${glowIntensity})`
-          )
+          y: newY
         };
       })
     };

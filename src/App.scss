@@ -21,18 +21,23 @@ h1, h2, h3, h4, h5, h6, button {
 }
 
 .bokeh-container {
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  transition: transform 0.1s ease-out;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
 }
 
 .bokeh {
   position: absolute;
   border-radius: 50%;
-  filter: blur(8px);
-  opacity: 0.6;
-  transition: transform 0.3s ease-out;
+  filter: blur(30px);
+  opacity: 0.5;
+  background: #7bc6cc;
+  transition: opacity 0.3s ease;
   will-change: transform;
   pointer-events: none;
 
@@ -41,12 +46,12 @@ h1, h2, h3, h4, h5, h6, button {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
+    transform: translate(-50%, -50%);
     border-radius: 50%;
     background: inherit;
-    filter: blur(8px);
+    filter: blur(20px);
   }
 }
 
@@ -57,7 +62,7 @@ h1, h2, h3, h4, h5, h6, button {
   padding: 2.5%;
   margin-top: 10rem;
   margin-left:.5rem;
-  z-index: 2;
+  z-index: 10;
   color: white;
   display: flex;
   align-items: center;
@@ -263,13 +268,14 @@ h1, h2, h3, h4, h5, h6, button {
   position: fixed;
   top: 2rem;
   left: 2rem;
-  background: none;
+  background: rgba(255,255,255,0.1);
   border: none;
   color: white;
   font-size: 2rem;
+  line-height: 0;
   cursor: pointer;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0;
   border-radius: 50%;
   width: 4rem;
   height: 4rem;
@@ -277,9 +283,15 @@ h1, h2, h3, h4, h5, h6, button {
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  background: rgba(255,255,255,0.1);
   backdrop-filter: blur(10px);
   margin-bottom: 0;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-1px);
+  }
 
   &:hover {
     background: rgba(255,255,255,0.2);
@@ -289,4 +301,24 @@ h1, h2, h3, h4, h5, h6, button {
   &:active {
     transform: scale(0.95);
   }
+}
+
+.three-scene {
+  z-index: 10;
+}
+
+.audio-player {
+  z-index: 10;
+}
+
+.pong-container {
+  z-index: 10;
+}
+
+.ux-flow {
+  z-index: 10;
+}
+
+.loading-screen {
+  z-index: 100;
 }

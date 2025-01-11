@@ -8,17 +8,26 @@ interface OptionsBarProps {
 }
 
 export function OptionsBar({ onBackClick, onNavigate }: OptionsBarProps) {
+  const toggleMenu = useStore(state => state.toggleMenu);
+  
   const options = [
     "Picture Cube",
     "Audio Player",
-    "UX Flow",
+    "Branding",
     "Pong"
   ];
 
   const handleClick = (index: number) => {
-    if (index === 0) onNavigate('cube');
+    if (index === 0) {
+      onNavigate('home');
+      setTimeout(() => onNavigate('cube'), 0);
+      return;
+    }
     if (index === 1) onNavigate('audio');
-    if (index === 2) onNavigate('uxflow');
+    if (index === 2) {
+      onNavigate('uxflow');
+      toggleMenu();
+    }
     if (index === 3) onNavigate('pong');
   };
 

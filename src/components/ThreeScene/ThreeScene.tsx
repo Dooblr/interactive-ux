@@ -1,9 +1,8 @@
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls, Html, Grid } from '@react-three/drei';
-import { TextureLoader } from 'three';
+import { TextureLoader, DefaultLoadingManager } from 'three';
 import { motion } from 'framer-motion';
 import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
-import { useLoadingManager } from './LoadingManager';
 import './ThreeScene.scss';
 import * as THREE from 'three';
 
@@ -45,79 +44,71 @@ function ImageGrid({ textures, visible }: { textures: THREE.Texture[], visible: 
 }
 
 function Cube({ onCubeReady }: { onCubeReady: (textures: THREE.Texture[]) => void }) {
-  const [error, setError] = useState<string | null>(null);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  useLoadingManager((url) => setError(`Failed to load texture: ${url}`));
+  const textureUrls = Object.values(imageContext).map(module => (module as { default: string }).default);
+  const textures = useLoader(TextureLoader, textureUrls);
 
   useEffect(() => {
-    const urls = Object.keys(imageContext).map(path => path);
-    const finalUrls = [...urls];
-    while (finalUrls.length < 6) {
-      finalUrls.push(urls[urls.length - 1]);
-    }
-    setImageUrls(finalUrls.slice(0, 6));
-  }, []);
-
-  const textures = useLoader(TextureLoader, imageUrls);
-  
-  useEffect(() => {
-    if (textures.length === 6) {
+    if (textures.length > 0) {
       onCubeReady(textures);
     }
   }, [textures, onCubeReady]);
 
-  if (error) {
-    return (
-      <mesh>
-        <boxGeometry args={[2, 2, 2]} />
-        <meshStandardMaterial color="#7bc6cc" />
-      </mesh>
-    );
-  }
-
   return (
-    <mesh>
-      <boxGeometry args={[2, 2, 2]} />
-      {textures.map((texture, index) => (
-        <meshStandardMaterial 
-          key={index} 
-          attach={`material-${index}`} 
-          map={texture}
-        />
-      ))}
-    </mesh>
+    <group>
+      {/* Front */}
+      <mesh position={[0, 0, 1]}>
+        <planeGeometry args={[2, 2]} />
+        <meshStandardMaterial map={textures[0]} side={THREE.DoubleSide} />
+      </mesh>
+      
+      {/* Back */}
+      <mesh position={[0, 0, -1]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[2, 2]} />
+        <meshStandardMaterial map={textures[1]} side={THREE.DoubleSide} />
+      </mesh>
+      
+      {/* Right */}
+      <mesh position={[1, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[2, 2]} />
+        <meshStandardMaterial map={textures[2]} side={THREE.DoubleSide} />
+      </mesh>
+      
+      {/* Left */}
+      <mesh position={[-1, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <planeGeometry args={[2, 2]} />
+        <meshStandardMaterial map={textures[3]} side={THREE.DoubleSide} />
+      </mesh>
+      
+      {/* Top */}
+      <mesh position={[0, 1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2, 2]} />
+        <meshStandardMaterial map={textures[4]} side={THREE.DoubleSide} />
+      </mesh>
+      
+      {/* Bottom */}
+      <mesh position={[0, -1, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2, 2]} />
+        <meshStandardMaterial map={textures[5]} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
   );
 }
 
 function Scene() {
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <spotLight
-        position={[10, 10, 10]}
-        angle={0.15}
-        penumbra={1}
-        intensity={1}
-        castShadow
-      />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} />
-      
-      <pointLight
-        position={[10, 0, -10]}
-        intensity={0.3}
-        color="#7bc6cc"
-      />
-
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} />
       <Grid
         renderOrder={-1}
-        position={[0, -2, 0]}
-        infiniteGrid={true}
-        cellSize={0.5}
-        cellThickness={0.5}
-        cellColor="#7bc6cc"
-        sectionSize={2}
-        sectionThickness={1}
-        sectionColor="#feb47b"
+        position={[0, -1.85, 0]}
+        infiniteGrid
+        cellSize={0.6}
+        cellThickness={0.6}
+        cellColor="#6f6f6f"
+        sectionSize={2.4}
+        sectionThickness={1.2}
+        sectionColor="#9d4b4b"
         fadeDistance={30}
         fadeStrength={1}
         followCamera={false}
@@ -132,6 +123,49 @@ export function ThreeScene() {
   const [showGrid, setShowGrid] = useState(false);
   const cubeRef = useRef<THREE.Group>();
   const controlsRef = useRef<OrbitControls>();
+  const mountedRef = useRef(false);
+  const textureLoaderRef = useRef(new TextureLoader());
+
+  // Cleanup function
+  const cleanup = useCallback(() => {
+    if (!mountedRef.current) return;
+
+    // Dispose textures
+    textures.forEach(texture => {
+      texture.dispose();
+    });
+    setTextures([]);
+
+    // Reset state
+    setIsExpanded(false);
+    setShowGrid(false);
+
+    // Reset cube
+    if (cubeRef.current) {
+      cubeRef.current.scale.set(1, 1, 1);
+      cubeRef.current.visible = true;
+    }
+
+    // Reset controls
+    if (controlsRef.current) {
+      controlsRef.current.reset();
+    }
+
+    // Clear loading manager
+    DefaultLoadingManager.onProgress = null;
+    DefaultLoadingManager.onLoad = null;
+    DefaultLoadingManager.onError = null;
+  }, []);
+
+  // Initialize component
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+      cleanup();
+    };
+  }, []);
 
   const handleCubeReady = useCallback((loadedTextures: THREE.Texture[]) => {
     setTextures(loadedTextures);
@@ -212,10 +246,16 @@ export function ThreeScene() {
       exit={{ opacity: 0 }}
     >
       <Canvas 
-        camera={{ position: [3, 3, 3], fov: 50 }}
+        camera={{ position: [4, 3, 4], fov: 50 }}
         shadows
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance',
+          preserveDrawingBuffer: true
+        }}
       >
-        <Suspense fallback={<LoadingFallback />}>
+        <Suspense fallback={null}>
           <Scene />
           
           <group ref={cubeRef}>
@@ -232,6 +272,15 @@ export function ThreeScene() {
             autoRotateSpeed={1}
             minPolarAngle={Math.PI / 4}
             maxPolarAngle={Math.PI / 2}
+            enableDamping={true}
+            dampingFactor={0.05}
+            rotateSpeed={0.5}
+            makeDefault
+            domElement={document.body}
+            touches={{
+              ONE: THREE.TOUCH.ROTATE,
+              TWO: THREE.TOUCH.DOLLY_PAN
+            }}
           />
         </Suspense>
       </Canvas>
