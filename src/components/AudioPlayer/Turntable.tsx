@@ -11,12 +11,10 @@ interface TurntableProps {
 }
 
 export function Turntable({ 
-  isPlaying, 
-  progress, 
+  isPlaying,
   onPause, 
   onResume,
   sourceNode,
-  audioContext 
 }: TurntableProps) {
   const turntableRef = useRef<HTMLDivElement>(null);
   const vinylRef = useRef<HTMLDivElement>(null);

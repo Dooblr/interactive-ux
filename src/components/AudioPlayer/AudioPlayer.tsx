@@ -18,7 +18,6 @@ export function AudioPlayer() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressAnimationRef = useRef<number>();
   const [audioContextState, setAudioContextState] = useState<AudioContextState | null>(null);
   const setAudioPlaying = useStore(state => state.setAudioPlaying);
 

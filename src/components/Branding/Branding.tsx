@@ -1,6 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { themeColors, useStore } from '../../store/useStore';
 import './Branding.scss';
 
 type Step = 'hero' | 'options' | 'detail';

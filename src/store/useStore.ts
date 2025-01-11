@@ -185,7 +185,7 @@ export const useStore = create<AppState>((set, get) => ({
     // Only clear bokeh elements for cube view, maintain for home
     if (view === 'start') {
       setTimeout(() => {
-        set(state => ({
+        set(() => ({
           bokehElements: createInitialBokehElements()
         }));
       }, 300);
@@ -211,7 +211,7 @@ export const useStore = create<AppState>((set, get) => ({
       // Only reinitialize bokeh for start view
       if (previousView === 'start') {
         setTimeout(() => {
-          set(state => ({
+          set(() => ({
             bokehElements: createInitialBokehElements()
           }));
         }, 300);

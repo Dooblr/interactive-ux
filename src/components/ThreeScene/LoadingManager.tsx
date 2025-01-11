@@ -13,8 +13,8 @@ export function useLoadingManager(onError: (url: string) => void) {
     };
 
     return () => {
-      DefaultLoadingManager.onError = null;
-      DefaultLoadingManager.onProgress = null;
+      DefaultLoadingManager.onError = () => {};
+      DefaultLoadingManager.onProgress = () => {};
     };
   }, [onError]);
 } 

@@ -1,15 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef } from "react";
-import { OptionsBar } from "./components/OptionsBar/OptionsBar";
-import { Pong } from './components/Pong/Pong';
-import { ThreeScene } from './components/ThreeScene/ThreeScene';
-import { Home } from './components/Home/Home';
-import { useStore, shouldShowBackButton, heroVariants } from "./store/useStore";
 import "./App.scss";
-import { AudioPlayer } from './components/AudioPlayer/AudioPlayer';
-import { UXFlow } from './components/UXFlow/UXFlow';
-import { Branding } from './components/Branding/Branding';
-import { MenuToggle } from './components/shared/MenuToggle';
+import { AudioPlayer } from "./components/AudioPlayer/AudioPlayer";
+import { Branding } from "./components/Branding/Branding";
+import { Home } from "./components/Home/Home";
+import { OptionsBar } from "./components/OptionsBar/OptionsBar";
+import { Pong } from "./components/Pong/Pong";
+import { MenuToggle } from "./components/shared/MenuToggle";
+import { ThreeScene } from "./components/ThreeScene/ThreeScene";
+import { heroVariants, shouldShowBackButton, useStore } from "./store/useStore";
 
 function App() {
   const {
@@ -20,17 +19,15 @@ function App() {
     goBack,
     initializeBokehElements,
     updateBokehElements,
-    toggleMenu
+    toggleMenu,
   } = useStore();
-
-  const isAudioPlaying = useStore(state => state.isAudioPlaying);
-  const setMousePosition = useStore(state => state.setMousePosition);
+  const setMousePosition = useStore((state) => state.setMousePosition);
   const animationFrameRef = useRef<number>();
 
   // Initialize bokeh elements
   useEffect(() => {
     initializeBokehElements();
-    
+
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -45,7 +42,7 @@ function App() {
     const frameInterval = 1000 / fps;
 
     const animate = (currentTime: number) => {
-      if (currentView === 'cube') return;
+      if (currentView === "cube") return;
 
       const deltaTime = currentTime - lastTime;
 
@@ -72,8 +69,8 @@ function App() {
       setMousePosition(e.clientX, e.clientY);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [setMousePosition]);
 
   return (
@@ -81,8 +78,8 @@ function App() {
       <div
         className="bokeh-container"
         style={{
-          opacity: currentView === 'cube' ? 0 : 1,
-          transition: 'opacity 0.3s ease-out'
+          opacity: currentView === "cube" ? 0 : 1,
+          transition: "opacity 0.3s ease-out",
         }}
       >
         {bokehElements?.map((element) => (
@@ -93,7 +90,7 @@ function App() {
               width: element.size,
               height: element.size,
               transform: `translate(${element.x}px, ${element.y}px)`,
-              background: element.color
+              background: element.color,
             }}
           />
         ))}
@@ -101,7 +98,7 @@ function App() {
 
       {/* Start Screen */}
       <AnimatePresence mode="wait">
-        {currentView === 'start' && (
+        {currentView === "start" && (
           <motion.div
             className="hero-container"
             variants={heroVariants}
@@ -113,12 +110,12 @@ function App() {
             <div className="corner top-right" />
             <div className="corner bottom-left" />
             <div className="corner bottom-right" />
-            <h1>Interactive UI</h1>
+            <h1>Interactive UX</h1>
             <motion.button
               className="begin-button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigateTo('home')}
+              onClick={() => navigateTo("home")}
             >
               Begin
             </motion.button>
@@ -128,27 +125,24 @@ function App() {
 
       {/* Navigation Bar */}
       <AnimatePresence>
-        {isMenuVisible && currentView !== 'start' && (
-          <OptionsBar 
-            onBackClick={goBack}
-            onNavigate={navigateTo}
-          />
+        {isMenuVisible && currentView !== "start" && (
+          <OptionsBar onBackClick={goBack} onNavigate={navigateTo} />
         )}
       </AnimatePresence>
 
       {/* Content Views */}
       <AnimatePresence>
-        {currentView === 'home' && <Home />}
-        {currentView === 'pong' && (
-          <Pong 
+        {currentView === "home" && <Home />}
+        {currentView === "pong" && (
+          <Pong
             isActive={true}
             onToggleMenu={toggleMenu}
             isMenuVisible={isMenuVisible}
           />
         )}
-        {currentView === 'cube' && <ThreeScene />}
-        {currentView === 'audio' && <AudioPlayer />}
-        {currentView === 'uxflow' && (
+        {currentView === "cube" && <ThreeScene />}
+        {currentView === "audio" && <AudioPlayer />}
+        {currentView === "uxflow" && (
           <>
             <MenuToggle onClick={toggleMenu} />
             <Branding />

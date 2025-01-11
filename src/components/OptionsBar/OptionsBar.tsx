@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useStore, AppView, optionsBarVariants, optionVariants } from "../../store/useStore";
+import { AppView, optionsBarVariants, optionVariants, useStore } from "../../store/useStore";
 import "./OptionsBar.scss";
 
 interface OptionsBarProps {
@@ -7,7 +7,7 @@ interface OptionsBarProps {
   onNavigate: (view: AppView) => void;
 }
 
-export function OptionsBar({ onBackClick, onNavigate }: OptionsBarProps) {
+export function OptionsBar({ onNavigate }: OptionsBarProps) {
   const toggleMenu = useStore(state => state.toggleMenu);
   
   const options = [

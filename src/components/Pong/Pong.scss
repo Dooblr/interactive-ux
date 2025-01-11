@@ -62,4 +62,12 @@
       will-change: transform;
     }
   }
+}
+
+.options-bar {
+  z-index: 1000 !important;
+}
+
+.menu-toggle {
+  z-index: 1000 !important;
 } 
